@@ -20,9 +20,10 @@ Com Playwright e Chromium disponíveis, em outro terminal:
 
 ```sh
 node tests/smoke.cjs
+node tests/audio-smoke.cjs
 ```
 
-O teste usa `/usr/bin/chromium` por padrão; `CHROMIUM_PATH` permite outro caminho e `GAME_URL` permite outra URL de teste. Os testes verificam quatro tamanhos de tela, imagens, destino da pesquisa, teclado/toque, captura positiva e negativa, limite de pontuação, retorno à partida, encerramento sem opção de jogar novamente e botão de som. Emulação não substitui uma rodada em Android e iPhone reais; a disponibilidade e a qualidade da narração também dependem do dispositivo. Os testes não enviam respostas à pesquisa.
+O teste usa `/usr/bin/chromium` por padrão; `CHROMIUM_PATH` permite outro caminho e `GAME_URL` permite outra URL de teste. Os testes verificam quatro tamanhos de tela, imagens, destino da pesquisa, teclado/toque, captura positiva e negativa, limite de pontuação, retorno à partida, encerramento sem opção de jogar novamente e botão de som. Emulação não substitui uma rodada em Android e iPhone reais; a reprodução e o equilíbrio do áudio também devem ser conferidos no dispositivo. Os testes não enviam respostas à pesquisa.
 
 ## Como jogar
 
@@ -45,7 +46,9 @@ Pode-se também hospedar em Cloudflare Pages ou Netlify como site estático. Nã
 - Peças positivas: Respeito, Escuta, Equipe, Cuidado, Mérito, Servir.
 - Peças negativas: Desrespeito, Indiferença, Desunião, Descaso.
 - Tela final: **Sua voz importa** / **Responder pesquisa**.
-- Música de fundo não adicionada: para evitar direitos autorais e manter a experiência discreta. Há efeitos sonoros sintéticos; o botão ♪ ativa também narração em voz sintetizada do próprio dispositivo (a qualidade e a disponibilidade da voz pt-BR variam).
+- Música instrumental original de 16 segundos em loop durante a partida: volume de 15%, reduzido para 4% durante a narração. Não utiliza música de terceiros.
+- As duas gravações fornecidas substituem a voz sintetizada: `assets/audio/inicio.mp3` na abertura e `assets/audio/final.mp3` no encerramento. A trilha está em `assets/audio/musica.mp3`.
+- O som inicia após tocar em **Começar**. O botão ♪ silencia ou reativa voz, música e efeitos. Ao terminar a partida, a música para e a gravação final é reproduzida. O áudio pausa quando a página fica em segundo plano.
 - Não armazena nome, pontuação, resposta, IP, nem instala ferramenta de análise. O servidor de hospedagem pode manter logs próprios de acesso.
 - O link da pesquisa é público e abre em nova aba; nenhuma resposta é coletada pelo minigame.
 - O botão **Ir direto para a pesquisa** fica sempre disponível.
@@ -54,7 +57,7 @@ Pode-se também hospedar em Cloudflare Pages ou Netlify como site estático. Nã
 
 - `game.js`: `DURATION_SECONDS`, listas de palavras e `FORM_URL`.
 - `styles.css`: cores, tamanhos, composição do cenário.
-- `assets/`: logo e busto do João.
+- `assets/`: logo e busto do João; `assets/audio/`: as gravações fornecidas e a trilha instrumental original.
 
 ## Validação necessária antes do lançamento
 

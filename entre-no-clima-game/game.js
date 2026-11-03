@@ -10,33 +10,97 @@
   const scoreEl = $('score'), timerEl = $('timer'), floatEl = $('floatingScore');
   const soundButton = $('soundButton'), soundMark = $('soundMark'), narratorMessage = $('narratorMessage');
   let running = false, score = 0, elapsed = 0, lastFrame = 0, spawnAt = 0, basketX = 0.5;
-  let activePieces = [], rafId = null, soundOn = false, audioContext = null;
+  let activePieces = [], rafId = null, soundOn = true, audioContext = null;
   // Zero player names, responses, analytics, cookies, or local storage.
   // The mini-game does not write to Google Forms; it only opens the official form.
   const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
   function getDimensions() { return { width: field.clientWidth, height: field.clientHeight }; }
   function showNarration(text) { narratorMessage.textContent = text; }
-  function say(text) {
-    if (!soundOn || !('speechSynthesis' in window)) return;
+  const AUDIO_FILES = {inicio:'assets/audio/inicio.mp3', final:'assets/audio/final.mp3', music:'assets/audio/musica.mp3'};
+  const MUSIC_VOLUME = .15, DUCKED_VOLUME = .04;
+  const audioFiles = new Map(), audioBuffers = new Map();
+  let masterGain = null, musicGain = null, musicSource = null, voiceSource = null;
+  let voiceToken = 0, musicToken = 0;
+  // Fetch only local assets. A missing audio file must never prevent playing.
+  for (const [key, url] of Object.entries(AUDIO_FILES)) {
+    audioFiles.set(key, fetch(url).then(response => {
+      if (!response.ok) throw new Error('Audio unavailable');
+      return response.arrayBuffer();
+    }).catch(() => null));
+  }
+  function initAudio() {
+    if (!soundOn) return false;
     try {
-      window.speechSynthesis.cancel();
-      const speech = new SpeechSynthesisUtterance(text);
-      speech.lang = 'pt-BR'; speech.rate = 1.03; speech.pitch = 1.02;
-      const voice = window.speechSynthesis.getVoices().find(v => v.lang.toLowerCase().startsWith('pt-br'));
-      if (voice) speech.voice = voice;
-      window.speechSynthesis.speak(speech);
-    } catch (_) { /* Speech availability varies by device. */ }
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = audioContext.createGain();
+        masterGain.connect(audioContext.destination);
+        musicGain = audioContext.createGain();
+        musicGain.gain.value = MUSIC_VOLUME;
+        musicGain.connect(masterGain);
+      }
+      masterGain.gain.value = 1;
+      // Called directly from Começar/the sound button to unlock audio on mobile.
+      if (audioContext.state === 'suspended') audioContext.resume().catch(() => {});
+      return true;
+    } catch (_) { return false; }
+  }
+  async function loadAudio(key) {
+    if (!audioBuffers.has(key)) {
+      audioBuffers.set(key, audioFiles.get(key).then(data => data ? audioContext.decodeAudioData(data.slice(0)) : null).catch(() => null));
+    }
+    return audioBuffers.get(key);
+  }
+  function setMusicVolume(value) {
+    if (!musicGain) return;
+    musicGain.gain.cancelScheduledValues(audioContext.currentTime);
+    musicGain.gain.setTargetAtTime(value, audioContext.currentTime, .08);
+  }
+  function stopVoice() {
+    voiceToken++;
+    if (voiceSource) { voiceSource.onended = null; voiceSource.stop(); voiceSource = null; }
+    setMusicVolume(MUSIC_VOLUME);
+  }
+  function stopMusic() {
+    musicToken++;
+    if (musicSource) { musicSource.stop(); musicSource = null; }
+  }
+  async function startMusic() {
+    stopMusic();
+    if (!initAudio() || !running) return;
+    const token = musicToken;
+    const buffer = await loadAudio('music');
+    if (!buffer || token !== musicToken || !soundOn || !running) return;
+    musicSource = audioContext.createBufferSource();
+    musicSource.buffer = buffer; musicSource.loop = true;
+    musicSource.connect(musicGain); musicSource.start();
+  }
+  async function say(key) {
+    stopVoice();
+    if (!initAudio()) return;
+    const token = voiceToken;
+    const buffer = await loadAudio(key);
+    if (!buffer || token !== voiceToken || !soundOn) return;
+    voiceSource = audioContext.createBufferSource();
+    voiceSource.buffer = buffer; voiceSource.connect(masterGain);
+    setMusicVolume(DUCKED_VOLUME);
+    voiceSource.onended = () => { voiceSource = null; setMusicVolume(MUSIC_VOLUME); };
+    voiceSource.start();
+  }
+  function pauseAudio() {
+    if (audioContext?.state === 'running') audioContext.suspend().catch(() => {});
+  }
+  function resumeAudio() {
+    if (soundOn && audioContext?.state === 'suspended') audioContext.resume().catch(() => {});
   }
   function beep(frequency, duration, type = 'sine', volume = .07) {
-    if (!soundOn) return;
+    if (!initAudio()) return;
     try {
-      audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
-      if (audioContext.state === 'suspended') audioContext.resume();
       const oscillator = audioContext.createOscillator(), gain = audioContext.createGain();
       oscillator.type = type; oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
       gain.gain.setValueAtTime(volume, audioContext.currentTime);
       gain.gain.exponentialRampToValueAtTime(.001, audioContext.currentTime + duration);
-      oscillator.connect(gain); gain.connect(audioContext.destination);
+      oscillator.connect(gain); gain.connect(masterGain);
       oscillator.start(); oscillator.stop(audioContext.currentTime + duration);
     } catch (_) { /* Audio is optional. */ }
   }
@@ -92,7 +156,7 @@
     timerEl.textContent = '0';
     showNarration('Sua voz importa!');
     beep(659,.17); setTimeout(() => beep(880,.27), 110);
-    say('Missão cumprida! Sua voz importa. Participe da pesquisa!');
+    stopMusic(); say('final');
     endOverlay.classList.remove('hidden');
     endOverlay.querySelector('a').focus({preventScroll:true});
   }
@@ -133,7 +197,7 @@
     showNarration('Pegue as verdes!');
     running = true; placeBasket();
     field.focus({preventScroll:true});
-    beep(523,.11); say('Pegue as boas atitudes! Evite as vermelhas.');
+    startMusic(); say('inicio');
     rafId = requestAnimationFrame(frame);
   }
   soundButton.addEventListener('click', () => {
@@ -142,18 +206,28 @@
     soundButton.setAttribute('aria-label',soundOn ? 'Desativar som e narração' : 'Ativar som e narração');
     soundButton.title = soundButton.getAttribute('aria-label');
     soundMark.textContent = soundOn ? '✓' : '×';
-    if (soundOn) beep(600,.12);
-    else if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    if (soundOn) {
+      initAudio();
+      if (running) { startMusic(); say('inicio'); }
+      else if (!endOverlay.classList.contains('hidden')) say('final');
+    } else {
+      stopVoice(); stopMusic();
+      if (masterGain) masterGain.gain.value = 0;
+    }
   });
   $('startButton').addEventListener('click',startGame);
   // A single destination maintained as the official survey URL.
   document.querySelectorAll('a[href*="docs.google.com/forms/"]').forEach(a => a.href = FORM_URL);
   window.addEventListener('pagehide', () => {
     if (rafId !== null) cancelAnimationFrame(rafId);
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    pauseAudio();
   });
   // A back/forward-cache restore must resume the interrupted game, not freeze it.
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) pauseAudio(); else resumeAudio();
+  });
   window.addEventListener('pageshow', ev => {
+    resumeAudio();
     if (ev.persisted && running) {
       lastFrame = 0;
       rafId = requestAnimationFrame(frame);

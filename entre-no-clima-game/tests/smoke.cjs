@@ -55,9 +55,9 @@ const form = 'https://docs.google.com/forms/d/e/1FAIpQLSemX0nyQykKrwrfwwai6owPVf
       assert.equal(await page.locator('#score').textContent(),'0');
       assert.equal(await page.locator('#timer').textContent(),'25');
       await page.locator('#soundButton').click();
-      assert.equal(await page.locator('#soundButton').getAttribute('aria-pressed'),'true');
-      await page.locator('#soundButton').click();
       assert.equal(await page.locator('#soundButton').getAttribute('aria-pressed'),'false');
+      await page.locator('#soundButton').click();
+      assert.equal(await page.locator('#soundButton').getAttribute('aria-pressed'),'true');
       // Force negative pieces; score must decrease by 5 without going below zero.
       await page.evaluate(()=>{Math.random=()=>0.9;});
       const field=await page.locator('#playfield').boundingBox();
