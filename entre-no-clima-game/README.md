@@ -43,7 +43,7 @@ Pode-se também hospedar em Cloudflare Pages ou Netlify como site estático. Nã
 - Logo da campanha fornecida pelo solicitante; não utiliza a logo oficial isolada da empresa.
 - Mascote fornecido, recortado no busto, usado apenas como narrador visual.
 - Fundo com formas e estruturas de construção **sem nenhuma palavra**.
-- Peças positivas: Respeito, Escuta, Equipe, Cuidado, Mérito, Servir.
+- Peças positivas: Respeito, Colaborar, Equipe, Cuidado, Mérito, Servir.
 - Peças negativas: Desrespeito, Indiferença, Desunião, Descaso.
 - Tela final: **Sua voz importa** / **Responder pesquisa**.
 - Música instrumental original de 16 segundos em loop durante a partida: volume de 15%, reduzido para 4% durante a narração. Não utiliza música de terceiros.

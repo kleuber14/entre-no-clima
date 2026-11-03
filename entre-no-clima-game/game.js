@@ -2,7 +2,7 @@
   'use strict';
   const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSemX0nyQykKrwrfwwai6owPVf_x1mg0HSlP7nuk1B47JxGbfg/viewform?usp=sharing&ouid=108156601853218969947';
   const DURATION_SECONDS = 25;
-  const POSITIVE = ['Respeito', 'Escuta', 'Equipe', 'Cuidado', 'Mérito', 'Servir'];
+  const POSITIVE = ['Respeito', 'Colaborar', 'Equipe', 'Cuidado', 'Mérito', 'Servir'];
   const NEGATIVE = ['Desrespeito', 'Indiferença', 'Desunião', 'Descaso'];
   const $ = (id) => document.getElementById(id);
   const field = $('playfield'), basket = $('basket'), piecesRoot = $('pieces');
