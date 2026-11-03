@@ -9,3 +9,6 @@
 @media (max-height:640px){.header{height:76px;min-height:76px}.game-shell{min-height:260px}.footer{min-height:43px}}
 @media (max-height:450px){.header{height:58px;min-height:58px}.sound-button{top:5px;padding:5px 9px}.game-bottom{height:48px}.narrator img{height:43px;width:38px}.game-shell{min-height:220px}.overlay-panel{padding:14px 20px}.overlay-panel h1{font-size:23px}.overlay-panel p{margin-bottom:12px}.final-panel h2{margin-bottom:10px}.finish-icon{font-size:28px}}
 @media (min-width:650px){.app{height:min(100svh,850px);min-height:0}}
+/* The approved logo has transparent margins; enlarge its visible artwork. */
+.header{overflow:hidden}
+.campaign-logo{transform:scale(1.55)}
