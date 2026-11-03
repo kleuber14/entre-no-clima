@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#075839" />
+  <meta name="description" content="Entre no Clima — um convite para participar da pesquisa de clima." />
+  <title>Entre no Clima | Minigame</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <img class="campaign-logo" src="assets/logo-entre-no-clima.png" alt="Entre no Clima" />
+      <button id="soundButton" class="sound-button" type="button" aria-label="Ativar som e narração" aria-pressed="false" title="Ativar som e narração">♪ <span id="soundMark">×</span></button>
+    </header>
+    <section class="game-shell" aria-label="Jogo Capture as Boas Atitudes">
+      <div class="hud" aria-live="off">
+        <div class="hud-chip"><span aria-hidden="true">★</span> <span id="score">0</span></div>
+        <div class="hud-chip"><span aria-hidden="true">◷</span> <span id="timer">25</span>s</div>
+      </div>
+      <div id="playfield" class="playfield" tabindex="-1" aria-label="Área do jogo: capture as atitudes positivas e evite as negativas. Use as setas ou as teclas A e D para mover o cesto.">
+        <div class="scenery" aria-hidden="true">
+          <div class="sky-glow"></div><div class="cloud c1"></div><div class="cloud c2"></div>
+          <div class="warehouse warehouse-left"></div><div class="warehouse warehouse-right"></div>
+          <div class="shelf"><i></i><i></i><i></i></div>
+          <div class="ground"></div>
+        </div>
+        <div id="pieces" class="pieces"></div>
+        <div id="basket" class="basket" aria-label="Cesto para capturar as atitudes">
+          <span class="basket-rim"></span><span class="basket-mark" aria-hidden="true">⌂</span>
+        </div>
+        <div id="floatingScore" class="floating-score" aria-live="polite"></div>
+      </div>
+      <div class="game-bottom">
+        <div class="narrator"><img src="assets/joao-busto.png" alt="João da Construção" /><span id="narratorMessage">Capture as boas atitudes!</span></div>
+        <div class="touch-help" aria-hidden="true">↔</div>
+      </div>
+      <div id="startOverlay" class="overlay">
+        <div class="overlay-panel">
+          <h1>Capture as boas atitudes</h1>
+          <p>Arraste o cesto para pegar as peças verdes e evitar as vermelhas.</p>
+          <button id="startButton" class="primary-button" type="button">Começar <span aria-hidden="true">▶</span></button>
+        </div>
+      </div>
+      <div id="endOverlay" class="overlay hidden" aria-live="polite">
+        <div class="overlay-panel final-panel">
+          <span class="finish-icon" aria-hidden="true">✦</span>
+          <h2>Sua voz importa</h2>
+          <a class="primary-button" href="https://docs.google.com/forms/d/e/1FAIpQLSemX0nyQykKrwrfwwai6owPVf_x1mg0HSlP7nuk1B47JxGbfg/viewform?usp=sharing&amp;ouid=108156601853218969947" target="_blank" rel="noopener noreferrer">Responder pesquisa <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+    </section>
+    <footer class="footer"><a class="skip-link" href="https://docs.google.com/forms/d/e/1FAIpQLSemX0nyQykKrwrfwwai6owPVf_x1mg0HSlP7nuk1B47JxGbfg/viewform?usp=sharing&amp;ouid=108156601853218969947" target="_blank" rel="noopener noreferrer">Ir direto para a pesquisa ↗</a></footer>
+  </main>
+  <script src="game.js" defer></script>
+</body>
+</html>
