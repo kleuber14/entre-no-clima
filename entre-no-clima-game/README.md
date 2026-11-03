@@ -6,14 +6,32 @@ Projeto web simples (HTML, CSS, JavaScript puro) para a campanha de pesquisa de 
 
 Abra `index.html` no navegador. Para um servidor local, use `python -m http.server 8000` nesta pasta e visite `http://localhost:8000`.
 
+## Prévia privada e testes
+
+Não é necessário publicar o jogo para testá-lo. Extraia o pacote da prévia e abra `index.html` no computador. Para testar pelo navegador de um celular, use uma prévia privada autorizada ou um servidor na sua rede local; o servidor restrito a `127.0.0.1` no ambiente em nuvem só fica acessível na própria máquina.
+
+No ambiente em nuvem, execute nesta pasta:
+
+```sh
+python3 -m http.server 8000 --bind 127.0.0.1
+```
+
+Com Playwright e Chromium disponíveis, em outro terminal:
+
+```sh
+node tests/smoke.cjs
+```
+
+O teste usa `/usr/bin/chromium` por padrão; `CHROMIUM_PATH` permite outro caminho e `GAME_URL` permite outra URL de teste. Os testes verificam quatro tamanhos de tela, imagens, destino da pesquisa, teclado/toque, captura positiva e negativa, limite de pontuação, retorno à partida, encerramento sem opção de jogar novamente e botão de som. Emulação não substitui uma rodada em Android e iPhone reais; a disponibilidade e a qualidade da narração também dependem do dispositivo. Os testes não enviam respostas à pesquisa.
+
 ## Como jogar
 
 Toque em **Começar**, arraste o cesto com o dedo ou mouse (teclado: ← →, A D) e capture as peças verdes. Evite as vermelhas. A partida dura 25 segundos. A pesquisa fica acessível também sem jogar.
 
 ## Publicação via Codex / GitHub Pages
 
-1. Suba o conteúdo desta pasta para um repositório GitHub.
-2. No GitHub: Settings > Pages > Deploy from a branch > main > /(root).
+1. A branch `main` mantém o código e os testes; a branch `gh-pages` recebe o conteúdo desta pasta na raiz.
+2. No GitHub: Settings > Pages > Deploy from a branch > gh-pages > /(root).
 3. Compartilhe o endereço HTTPS resultante por QR Code ou WhatsApp.
 4. Confirme o funcionamento em Android e iPhone antes da divulgação.
 

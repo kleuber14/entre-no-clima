@@ -10,7 +10,7 @@
   const scoreEl = $('score'), timerEl = $('timer'), floatEl = $('floatingScore');
   const soundButton = $('soundButton'), soundMark = $('soundMark'), narratorMessage = $('narratorMessage');
   let running = false, score = 0, elapsed = 0, lastFrame = 0, spawnAt = 0, basketX = 0.5;
-  let activePieces = [], rafId = null, soundOn = false, audioContext = null, lastNarration = '';
+  let activePieces = [], rafId = null, soundOn = false, audioContext = null;
   // Zero player names, responses, analytics, cookies, or local storage.
   // The mini-game does not write to Google Forms; it only opens the official form.
   const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
@@ -25,7 +25,6 @@
       const voice = window.speechSynthesis.getVoices().find(v => v.lang.toLowerCase().startsWith('pt-br'));
       if (voice) speech.voice = voice;
       window.speechSynthesis.speak(speech);
-      lastNarration = text;
     } catch (_) { /* Speech availability varies by device. */ }
   }
   function beep(frequency, duration, type = 'sine', volume = .07) {
@@ -59,7 +58,13 @@
     if (!running || !['ArrowLeft','ArrowRight','a','d','A','D'].includes(ev.key)) return;
     ev.preventDefault(); basketX = clamp(basketX + (['ArrowLeft','a','A'].includes(ev.key) ? -.095 : .095), 0, 1); placeBasket();
   });
-  window.addEventListener('resize', placeBasket);
+  window.addEventListener('resize', () => {
+    placeBasket();
+    const {width} = getDimensions();
+    activePieces.forEach(piece => {
+      piece.x = clamp(piece.x, 6, Math.max(6, width - piece.width - 6));
+    });
+  });
   function spawnPiece() {
     const good = Math.random() < .72;
     const wordList = good ? POSITIVE : NEGATIVE;
@@ -89,6 +94,7 @@
     beep(659,.17); setTimeout(() => beep(880,.27), 110);
     say('Missão cumprida! Sua voz importa. Participe da pesquisa!');
     endOverlay.classList.remove('hidden');
+    endOverlay.querySelector('a').focus({preventScroll:true});
   }
   function frame(time) {
     if (!running) return;
@@ -126,6 +132,7 @@
     startOverlay.classList.add('hidden'); endOverlay.classList.add('hidden');
     showNarration('Pegue as verdes!');
     running = true; placeBasket();
+    field.focus({preventScroll:true});
     beep(523,.11); say('Pegue as boas atitudes! Evite as vermelhas.');
     rafId = requestAnimationFrame(frame);
   }
@@ -133,18 +140,24 @@
     soundOn = !soundOn;
     soundButton.setAttribute('aria-pressed',String(soundOn));
     soundButton.setAttribute('aria-label',soundOn ? 'Desativar som e narração' : 'Ativar som e narração');
+    soundButton.title = soundButton.getAttribute('aria-label');
     soundMark.textContent = soundOn ? '✓' : '×';
     if (soundOn) beep(600,.12);
     else if ('speechSynthesis' in window) window.speechSynthesis.cancel();
   });
   $('startButton').addEventListener('click',startGame);
-  $('againButton').addEventListener('click',startGame);
   // A single destination maintained as the official survey URL.
   document.querySelectorAll('a[href*="docs.google.com/forms/"]').forEach(a => a.href = FORM_URL);
   window.addEventListener('pagehide', () => {
-    running = false;
     if (rafId !== null) cancelAnimationFrame(rafId);
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  });
+  // A back/forward-cache restore must resume the interrupted game, not freeze it.
+  window.addEventListener('pageshow', ev => {
+    if (ev.persisted && running) {
+      lastFrame = 0;
+      rafId = requestAnimationFrame(frame);
+    }
   });
   placeBasket();
 })();
